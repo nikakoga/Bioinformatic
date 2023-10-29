@@ -1,7 +1,7 @@
 sequence1 = "ATGCT"
 sequence2 = "AGCT"
 
-missmatchPenalty=-1
+mismatchPenalty=-1
 gapPenalty=-2
 match=1
 
@@ -15,16 +15,16 @@ def fillArray(array):
             topValue = array[row-1][col]+gapPenalty
             leftValue=array[row][col-1]+gapPenalty
             diagonalValue=countMatch(array,row,col)
-            array[row][col]=max(corectIfNegative(topValue,leftValue,diagonalValue))
+            array[row][col]=max(correctIfNegative(topValue,leftValue,diagonalValue))
     return array
 
 def countMatch(array,row,column):
     if(sequence1[column-1]==sequence2[row-1]):
         return array[row-1][column-1]+match
     else:
-        return array[row-1][column-1]+missmatchPenalty
+        return array[row-1][column-1]+mismatchPenalty
 
-def corectIfNegative(number1,number2,number3):
+def correctIfNegative(number1,number2,number3):
     numbers=[number1,number2,number3]
     result=[]
     for number in numbers:
