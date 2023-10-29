@@ -1,5 +1,5 @@
-sequence1 = "ATC"
-sequence2 = "ATCC"
+sequence1 = "ATGCT"
+sequence2 = "AGCT"
 
 missmatchPenalty=-1
 gapPenalty=-2
@@ -9,6 +9,30 @@ def createArray():
     array = [[0 for x in range(len(sequence1)+1)] for y in range(len(sequence2)+1)] 
     return array
 
+def fillArray(array):
+    for row in range(1,len(sequence2)+1):
+        for col in range (1,len(sequence1)+1):
+            topValue = array[row-1][col]+gapPenalty
+            leftValue=array[row][col-1]+gapPenalty
+            diagonalValue=countMatch(array,row,col)
+            array[row][col]=max(corectIfNegative(topValue,leftValue,diagonalValue))
+    return array
+
+def countMatch(array,row,column):
+    if(sequence1[column-1]==sequence2[row-1]):
+        return array[row-1][column-1]+match
+    else:
+        return array[row-1][column-1]+missmatchPenalty
+
+def corectIfNegative(number1,number2,number3):
+    numbers=[number1,number2,number3]
+    result=[]
+    for number in numbers:
+        if(number<0):
+            result.append(0)
+        else:
+            result.append(number)
+    return result
 
 def prettyPrint(array):
     nrow=0
@@ -23,4 +47,4 @@ def prettyPrint(array):
         
     
 
-prettyPrint(createArray())
+prettyPrint(fillArray(createArray()))
