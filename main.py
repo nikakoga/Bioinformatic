@@ -91,10 +91,24 @@ def getMismatchScore():
 
     return mismatchScore
 
-def createArray(sequence1, sequence2):
-    array = [[0 for x in range(len(sequence1)+1)] for y in range(len(sequence2)+1)] 
+def createArray(firstSeqLength, secondSeqLength):
+    array = [[0 for x in range(firstSeqLength)] for y in range(secondSeqLength)] 
     return array
 
+def fillArray(array, sequence1, sequence2, match, mismatchPenalty, gapPenalty):
+    for row in range(1,len(sequence2)+1):
+        for col in range (1,len(sequence1)+1):
+            topValue = array[row-1][col]+gapPenalty
+            leftValue=array[row][col-1]+gapPenalty
+            diagonalValue=array[row-1][col-1] + countMatch(sequence1[col-1],sequence2[row-1],match,mismatchPenalty)
+            array[row][col]=max(topValue,leftValue,diagonalValue,0)
+    return array
+
+def countMatch(firstSeqChar,secondSeqChar,match,mismatchPenalty):
+    if(firstSeqChar==secondSeqChar):
+        return match
+    else:
+        return mismatchPenalty
 
 def prettyPrint(array, sequence1, sequence2):
     nrow=0
@@ -115,4 +129,4 @@ if __name__ == "__main__":
         matchScore = getMatchScore()
         gapScore = getGapScore()
         mismatchScore = getMismatchScore()
-        prettyPrint(createArray(firstSequence, secondSequence),firstSequence, secondSequence)
+        prettyPrint(fillArray(createArray(len(firstSequence),len(secondSequence)),firstSequence,secondSequence,matchScore,mismatchScore,gapScore))
