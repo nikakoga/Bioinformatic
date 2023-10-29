@@ -92,7 +92,7 @@ def getMismatchScore():
     return mismatchScore
 
 def createArray(firstSeqLength, secondSeqLength):
-    array = [[0 for x in range(firstSeqLength)] for y in range(secondSeqLength)] 
+    array = [[0 for x in range(firstSeqLength+1)] for y in range(secondSeqLength+1)] 
     return array
 
 def fillArray(array, sequence1, sequence2, match, mismatchPenalty, gapPenalty):
@@ -120,6 +120,32 @@ def prettyPrint(array, sequence1, sequence2):
             print((sequence2[nrow-1])+str(row))
 
         nrow+=1
+
+def getMaxFromMatrix(matrix, firstSeqLength, secondSeqLength):
+    row, column, maximum = 0,0,0
+    for i in range(1, secondSeqLength+1):
+        for j in range(1, firstSeqLength+1):
+            if matrix[i][j]>maximum:
+                row, column, maximum = i, j, matrix[i][j]
+    return row, column, maximum
+
+def oneStepTraceback(matrix, row, column, gap, firstSequence, secondSequence):
+    if matrix[row][column]==matrix[row-1][column]+gap:
+        return row-1, column, matrix[row-1][column], "_", secondSequence[row-1]
+    elif matrix[row][column]==matrix[row][column-1]+gap:
+        return row, column-1, matrix[row][column-1], firstSequence[column-1], "_"
+    else:
+        return row-1, column-1, matrix[row-1][column-1], firstSequence[column-1], secondSequence[row-1]
+
+def getAlignmentFromMatrix(matrix, firstSequence, secondSequence, gap):
+    firstSeqAlignment, secondSeqAlignment = "", ""
+    row, column, currentVal = getMaxFromMatrix(matrix, len(firstSequence), len(secondSequence))
+    while currentVal != 0:
+        row, column, currentVal, firstSeqChar, secondSeqChar=oneStepTraceback(matrix, row, column, gap, firstSequence, secondSequence)
+        secondSeqAlignment, firstSeqAlignment = secondSeqChar+secondSeqAlignment, firstSeqChar+firstSeqAlignment
+    print("\nBest local alignment:")
+    print(firstSeqAlignment)
+    print(secondSeqAlignment)
         
     
 if __name__ == "__main__":
@@ -129,4 +155,6 @@ if __name__ == "__main__":
         matchScore = getMatchScore()
         gapScore = getGapScore()
         mismatchScore = getMismatchScore()
-        prettyPrint(fillArray(createArray(len(firstSequence),len(secondSequence)),firstSequence,secondSequence,matchScore,mismatchScore,gapScore))
+        alignmentMatrix = createArray(len(firstSequence), len(secondSequence))
+        alignmentMatrix = fillArray(alignmentMatrix, firstSequence, secondSequence, matchScore, mismatchScore, gapScore)
+        getAlignmentFromMatrix(alignmentMatrix, firstSequence, secondSequence, gapScore)
