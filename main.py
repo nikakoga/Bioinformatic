@@ -115,11 +115,4 @@ if __name__ == "__main__":
         matchScore = getMatchScore()
         gapScore = getGapScore()
         mismatchScore = getMismatchScore()
-        ### HERE GOES THE ALGORITHM :))))) ###
-        print(firstSequence)
-        print(secondSequence)
-        print(matchScore)
-        print(mismatchScore)
-        print(gapScore)
-        ### Prints for testing. Delete later ###
         prettyPrint(createArray(firstSequence, secondSequence),firstSequence, secondSequence)
