@@ -42,7 +42,6 @@ def prettyPrint(array):
             print(' '+str(row))
         else:
             print((sequence2[nrow-1])+str(row))
-
         nrow+=1
         
     
