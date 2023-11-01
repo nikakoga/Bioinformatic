@@ -1,6 +1,11 @@
 import sys
 from Bio import SeqIO
 
+class textColors:
+    WARNING = "\033[0;33;40m"
+    ERROR = "\033[0;31;40m"
+    RESET = "\033[0;0m"
+
 def getNumberFromString(x):
     if x[0] == '-':
         number = x[1:]
@@ -26,19 +31,19 @@ def getFastaSequences():
         try:
             file = open(sequenceFilepath, "r")
         except FileNotFoundError:
-            print("The file you provided doesn't exist. Make sure the path and filename are correct.")
+            print(f"{textColors.ERROR}Error! The file you provided doesn't exist. Make sure the path and filename are correct.{textColors.RESET}")
         sequences = list(SeqIO.parse(file, "fasta"))
         if len(sequences)<2:
-            print("Please provide a fasta file with two sequences to run the algorithm.")
+            print("Error! Please provide a fasta file with two sequences to run the algorithm.")
             isAlignmentPossible = False
         else:
             if len(sequences)>2:
-                print("The file you provided has more than two sequences. The alignment will be created for the first two.")
+                print(f"{textColors.WARNING}Warning: The file you provided has more than two sequences. The alignment will be created for the first two.{textColors.RESET}")
             firstSequence = sequences[0].seq
             secondSequence = sequences[1].seq
     
     else:
-        print("Please provide a .fasta file to run the algorithm.")
+        print(f"{textColors.ERROR}Error! Please provide a .fasta file to run the algorithm.{textColors.RESET}")
         isAlignmentPossible = False
 
     return isAlignmentPossible, firstSequence, secondSequence
@@ -50,7 +55,7 @@ def getMatchScore():
             if isNumeric:
                 print("Setting match score: {}".format(matchScore))
             else:
-                print("The value for match score you provided is not a number. The default value will be used instead.")
+                print(f"{textColors.WARNING}Warning: The value for match score you provided is not a number. The default value will be used instead.{textColors.RESET}")
                 print("Setting match score: 1")
                 matchScore=1
     else:
@@ -66,7 +71,7 @@ def getGapScore():
             if isNumeric:
                 print("Setting gap score: {}".format(gapScore))
             else:
-                print("The value for gap score you provided is not a number. The default value will be used instead.")
+                print(f"{textColors.WARNING}Warning: The value for gap score you provided is not a number. The default value will be used instead.{textColors.RESET}")
                 print("Setting gap score: -1")
                 gapScore=-1
     else:
@@ -77,19 +82,28 @@ def getGapScore():
 
 def getMismatchScore():
     if "--mismatch" in sys.argv and (sys.argv.index("--mismatch")+1)<len(sys.argv):
-            mismatchScore = sys.argv[sys.argv.index("--mismatch")+1]
-            isNumeric, mismatchScore = getNumberFromString(mismatchScore)
-            if isNumeric:
-                print("Setting mismatch score: {}".format(mismatchScore))
-            else:
-                print("The value for mismatch score you provided is not a number. The default value will be used instead.")
-                print("Setting mismatch score: -1")
-                mismatchScore=-1
+        mismatchScore = sys.argv[sys.argv.index("--mismatch")+1]
+        isNumeric, mismatchScore = getNumberFromString(mismatchScore)
+        if isNumeric:
+            print("Setting mismatch score: {}".format(mismatchScore))
+        else:
+            print(f"{textColors.WARNING}Warning: The value for mismatch score you provided is not a number. The default value will be used instead.{textColors.RESET}")
+            print("Setting mismatch score: -1")
+            mismatchScore=-1
     else:
         print("Setting mismatch score: -1")
         mismatchScore=-1
 
     return mismatchScore
+
+def getOutputFile():
+    if "--output" in sys.argv and (sys.argv.index("--output")+1)<len(sys.argv):
+        outputFile = sys.argv[sys.argv.index("--output")+1]
+        if not outputFile.endswith(".txt"):
+            outputFile = outputFile + ".txt"
+    else:
+        outputFile = "local_alignment.txt"
+    return outputFile
 
 def createArray(firstSeqLength, secondSeqLength):
     array = [[0 for x in range(firstSeqLength+1)] for y in range(secondSeqLength+1)] 
@@ -143,9 +157,16 @@ def getAlignmentFromMatrix(matrix, firstSequence, secondSequence, gap):
     while currentVal != 0:
         row, column, currentVal, firstSeqChar, secondSeqChar=oneStepTraceback(matrix, row, column, gap, firstSequence, secondSequence)
         secondSeqAlignment, firstSeqAlignment = secondSeqChar+secondSeqAlignment, firstSeqChar+firstSeqAlignment
-    print("\nBest local alignment:")
-    print(firstSeqAlignment)
-    print(secondSeqAlignment)
+
+    print("Writing to file: {}".format(getOutputFile()))
+    try:
+        outputFile = open(getOutputFile(),"w")
+        outputFile.write("Best local alignment:\n")
+        outputFile.write(firstSeqAlignment + "\n")
+        outputFile.write(secondSeqAlignment + "\n")
+        outputFile.write("Score: {}".format(getMaxFromMatrix(matrix, len(firstSequence), len(secondSequence))[2]))
+    except FileNotFoundError:
+        print(f"{textColors.ERROR}Error! Make sure that path to the output file is correct.{textColors.RESET}")
         
     
 if __name__ == "__main__":
