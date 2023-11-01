@@ -132,7 +132,6 @@ def prettyPrint(array, sequence1, sequence2):
             print(' '+str(row))
         else:
             print((sequence2[nrow-1])+str(row))
-
         nrow+=1
 
 def getMaxFromMatrix(matrix, firstSeqLength, secondSeqLength):
