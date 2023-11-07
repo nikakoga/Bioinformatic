@@ -16,7 +16,7 @@ git clone https://github.com/nikakoga/Bioinformatic.git
 ## Input file
 The program needs a file in FASTA format to work. The file should contain two sequences. When there are too few sequences, the program will terminate. If there are more, it will take the first two. Remember to provide the correct path to the file.
 ```sh
---input path/to/file/fasta_file.fasta
+--fasta path/to/file/fasta_file.fasta
 ```
 
 ## Output file
